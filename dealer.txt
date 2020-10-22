@@ -1,0 +1,1185 @@
+conn / as sysdba;
+
+drop user dealer cascade;
+
+create user dealer identified by dealer;
+grant all privileges to dealer;
+grant execute any procedure to dealer;
+
+grant connect,resource to dealer;
+alter user dealer default tablespace users;
+alter user dealer temporary tablespace temp;
+grant unlimited tablespace to dealer;
+
+conn dealer/dealer@orcl;
+
+create table suppliers
+(supplier_id number(6) primary key,
+supplier_name varchar2(30),
+supplier_phone number(12) unique,
+supplier_email varchar2(40) unique,
+supp_address varchar2(30),
+supp_due number(12));
+
+create table supplier_payments
+(supplier_pmt_id number(6) primary key,
+supplier_pmt_date date,
+supplier_id number(6),
+pur_ord_id number(6),
+acc_mgr_id number(6),
+bank_acc_no number(6),
+BANK_DD_NO number(20),
+supp_bank_acc_no number(6),
+bank_name varchar2(30),
+pmt_amount number(8,2));
+
+create table supp_bank_info
+(supp_bank_acc_no number(6) primary key,
+supp_bank_acc_name varchar2(30),
+bank_name varchar2(30),
+bank_branch varchar2(30),
+supplier_id number(6));
+
+create table bank_transection
+(transection_id number(6) primary key,
+trans_type varchar2(30),
+bank_acc_no number(15),
+trans_amount number(10),
+account_id number(5));
+
+create table bank_accounts
+( bank_acc_no number(15) primary key,
+bank_acc_name varchar2(30),
+bank_branch varchar2(20));
+
+create table purchage_order
+(pur_ord_id number(6) primary key,
+pur_order_date date,
+supplier_id number(6),
+purchage_mgr_id number(6),
+order_total number(10));
+
+create table purchage_items
+(pur_ord_id number(6),
+item_line_no number(6),
+product_id number(6),
+pur_price number(8),
+prod_qty number(8));
+
+create table prod_receive
+(prod_receive_id number(6) primary key,
+prod_receive_date date,
+invoice_no number(20),
+prod_receive_type varchar2(10),
+supplier_id number(6),
+pur_return_id number(6),
+pur_ord_id number(6),
+stock_mgr_id number(6),
+prod_receive_total number(8));
+
+create table prod_receive_items
+(prod_receive_id number(6),
+receive_line_no number(6),
+product_id number(6),
+pur_price number(8),
+prod_qty number(8));
+
+create table purchage_return
+(pur_return_id number(6) primary key,
+pur_return_date date,
+pur_ord_id number(6),
+supplier_id number(6),
+stock_mgr_id number(6),
+pur_return_total number(8));
+
+create table purchage_return_items
+(pur_return_id number(6),
+pur_return_line_no number(6),
+product_id number(6),
+pur_price number(8),
+prod_qty number(8));
+
+create table prod_damage
+(prod_damage_id number(6) primary key,
+prod_damage_date date,
+stock_mgr_id number(6),
+damage_total number(8));
+
+create table prod_damage_items
+(prod_damage_id number(6),
+prod_damage_line_no number(6),
+product_id number(6),
+pur_price number(8),
+prod_qty number(8));
+
+create table expense
+(expense_id number(6) primary key,
+voucher_no number(8),
+expense_date date,
+account_id number(8),
+expense_total number(8));
+
+create table expense_details
+(expense_id number(6),
+description varchar2(40),
+expense_amount number(8));
+
+create table payments
+(expense_id number(6),
+payment_date date,
+pay_amount number(8),
+account_id number(6));
+
+create table delivery_executive
+(delivery_extv_id number(6) primary key,
+name varchar2(30));
+
+create table products
+(product_id number(6) primary key,
+product_name varchar2(30),
+product_catagory number(20),
+product_description varchar2(30),
+purchage_price number(8),
+prod_min_price number(8),
+prod_max_price number(8),
+supplier_id number(6));
+
+create table stocks
+(product_id number(6),
+product_name varchar2(30),
+quantity number(8));
+
+create table employees
+(employee_id number(6) primary key,
+emp_name varchar2(30),
+hire_date date,
+job_id varchar2(30),
+salary number(8,2),
+commission number(2,2),
+emp_phone number(12),
+emp_email varchar2(30),
+emp_adress varchar2(30),
+manager_id number(6),
+image long raw);
+
+create table Customers
+(Customer_id number(6) primary key,
+Cust_name varchar2(35),
+Cust_phone number(12),
+Cust_email varchar2(35),
+Cust_address varchar2(35),
+Shipp_line_id number(6));
+
+create table Shipping
+(shipp_id number(6) Primary key,
+shipp_date date,
+shipp_line_id number(6),
+delivery_extv_id number(6),
+stock_mgr_id number(6),
+shipp_total number(6));
+
+create table shipping_details
+(shipp_id number(6),
+shipp_item_line_no number(8),
+product_id number(6),
+prod_price number(8),
+quantity number(8));
+
+create table Shipping_lines
+(Shipp_line_id number(6) primary key,
+Shipp_line_name varchar2(35),
+Shipp_line_area varchar2(35));
+
+create table Shipping_return
+(shipp_return_id number(8) primary key,
+Shipp_date date,
+shipp_id number(6),
+shipp_line_id number(6),
+delivery_extv_id number(6),
+Stock_mgr_id number(6),
+delivered_total number(10),
+shipp_ret_total number(10));
+
+create table shipping_return_details
+(shipp_return_id number(6),
+shipp_item_line_no number(8),
+product_id number(6),
+prod_price number(8),
+shipp_return_qty number(8));
+
+create table Sales_orders
+(Sales_ord_id number(6) primary key,
+Sales_ord_date date,
+Customer_id number(6),
+Sales_rep_id number(6));
+
+create table Sales_order_items
+(sales_ord_id Number(6),
+SALES_ORDER_LINE_NO number(8),
+product_id number(6),
+prod_price number(8,2),
+prod_qty number(10));
+
+create table Prod_delivery
+(Prod_delivery_id number(6) primary key,
+Prod_delivery_date date,
+Prod_delivery_type varchar2(40),
+Customer_id number(6),
+Sales_return_id number(6),
+Sales_ord_id number(6),
+Delivery_extv_id number(6),
+Shipp_id number(6),
+Total_amount number(10));
+
+create table Prod_delivery_items
+(prod_delivery_id number(8),
+prod_delivery_line_no number(10),
+product_id number(6),
+product_price number(8,2),
+prod_qty number(10));
+
+create table Sales_return
+(Sales_return_id number(6) primary key,
+Sales_return_date date,
+Customer_id number(6),
+Sales_ord_id number(6),
+Sales_rep_id number(8),
+Sales_ret_total number(10));
+
+create table sales_return_items
+(sales_return_id number(6),
+sales_return_line_no number(8),
+product_id number(6),
+prod_price number(8),
+prod_qty number(8));
+
+create table others_income
+(others_income_id number(6) primary key,
+income_date date,
+description varchar2(30),
+amount number(8),
+account_id number(6));
+
+create table Cash_receive
+(Cash_id number(6) primary key,
+Cash_date DATE,
+Cash_purpose varchar2(35),
+others_income_id number(6),
+Customer_id number(6),
+Sales_ord_id number(6),
+Description varchar2(35),
+Cash_amount number(10),
+Acc_mgr_id number(6));
+
+
+CREATE TABLE USERS(
+U_NAME VARCHAR2(50),
+U_PASS VARCHAR2(50),
+U_GP VARCHAR2(50));
+
+alter table supplier_payments
+add foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table supplier_payments
+add foreign key(pur_ord_id)
+references purchage_order(pur_ord_id);
+alter table supplier_payments
+add foreign key(acc_mgr_id)
+references employees(employee_id);
+alter table supplier_payments
+add foreign key(bank_acc_no)
+references bank_accounts(bank_acc_no);
+alter table supplier_payments
+add foreign key(supp_bank_acc_no)
+references supp_bank_info(supp_bank_acc_no);
+alter table supp_bank_info
+add  foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table bank_transection
+add  foreign key(bank_acc_no)
+references bank_accounts(bank_acc_no);
+alter table bank_transection
+add  foreign key(account_id)
+references employees(employee_id);
+alter table purchage_order
+add  foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table purchage_order
+add  foreign key(purchage_mgr_id)
+references employees(employee_id);
+alter table purchage_items
+add  foreign key(pur_ord_id)
+references purchage_order(pur_ord_id);
+alter table purchage_items
+add  foreign key(product_id)
+references products(product_id);
+alter table prod_receive
+add  foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table prod_receive
+add  foreign key(pur_return_id)
+references purchage_return(pur_return_id);
+alter table prod_receive
+add  foreign key(pur_ord_id)
+references purchage_order(pur_ord_id);
+alter table prod_receive
+add  foreign key(stock_mgr_id)
+references employees(employee_id);
+alter table prod_receive_items
+add  foreign key(prod_receive_id)
+references prod_receive(prod_receive_id);
+alter table purchage_return
+add  foreign key(pur_ord_id)
+references purchage_order(pur_ord_id);
+alter table purchage_return
+add  foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table purchage_return
+add  foreign key(stock_mgr_id)
+references employees(employee_id);
+alter table purchage_return_items
+add  foreign key(pur_return_id)
+references purchage_return(pur_return_id);
+alter table purchage_return_items
+add  foreign key(product_id)
+references products(product_id);
+alter table prod_damage
+add  foreign key(stock_mgr_id)
+references employees(employee_id);
+alter table prod_damage_items
+add  foreign key(prod_damage_id)
+references prod_damage(prod_damage_id);
+alter table prod_damage_items
+add  foreign key(product_id)
+references products(product_id);
+alter table expense
+add  foreign key(account_id)
+references employees(employee_id);
+alter table expense_details
+add  foreign key(expense_id)
+references expense(expense_id);
+alter table payments
+add  foreign key(expense_id)
+references expense(expense_id);
+alter table payments
+add  foreign key(account_id)
+references employees(employee_id);
+alter table products
+add  foreign key(supplier_id)
+references suppliers(supplier_id);
+alter table stocks
+add  foreign key(product_id)
+references products(product_id);
+alter table employees
+add  foreign key(manager_id)
+references employees(employee_id);
+alter table Customers
+add  foreign key(Shipp_line_id)
+references Shipping_lines(Shipp_line_id);
+alter table Shipping
+add  foreign key(Shipp_line_id)
+references Shipping_lines(Shipp_line_id);
+alter table Shipping
+add  foreign key(delivery_extv_id)
+references delivery_executive(delivery_extv_id);
+alter table Shipping
+add  foreign key(stock_mgr_id)
+references employees(employee_id);
+alter table shipping_details
+add  foreign key(shipp_id)
+references Shipping(shipp_id);
+alter table shipping_details
+add  foreign key(product_id)
+references products(product_id);
+alter table Shipping_return
+add  foreign key(shipp_id)
+references Shipping(shipp_id);
+alter table Shipping_return
+add  foreign key(shipp_line_id)
+references Shipping_lines(shipp_line_id);
+alter table Shipping_return
+add  foreign key(delivery_extv_id)
+references delivery_executive(delivery_extv_id);
+alter table Shipping_return
+add  foreign key(Stock_mgr_id)
+references employees(employee_id);
+alter table shipping_return_details
+add  foreign key(shipp_return_id)
+references Shipping_return(shipp_return_id);
+alter table shipping_return_details
+add  foreign key(product_id)
+references products(product_id);
+alter table Sales_orders
+add  foreign key(Customer_id)
+references Customers(Customer_id);
+alter table Sales_orders
+add  foreign key(Sales_rep_id)
+references employees(employee_id);
+alter table Sales_order_items
+add  foreign key(sales_ord_id)
+references Sales_orders(sales_ord_id);
+alter table Sales_order_items
+add  foreign key(product_id)
+references products(product_id);
+alter table Prod_delivery
+add  foreign key(Customer_id)
+references Customers(Customer_id);
+alter table Prod_delivery
+add  foreign key(Sales_return_id)
+references Sales_return(Sales_return_id);
+alter table Prod_delivery
+add  foreign key(Sales_ord_id)
+references Sales_orders(Sales_ord_id);
+alter table Prod_delivery
+add  foreign key(Delivery_extv_id)
+references delivery_executive(Delivery_extv_id);
+alter table Prod_delivery
+add  foreign key(Shipp_id)
+references Shipping(Shipp_id);
+alter table Prod_delivery_items
+add  foreign key(prod_delivery_id)
+references Prod_delivery(prod_delivery_id);
+alter table Prod_delivery_items
+add  foreign key(product_id)
+references products(product_id);
+alter table Sales_return
+add  foreign key(Customer_id)
+references Customers(Customer_id);
+alter table Sales_return
+add  foreign key(Sales_ord_id)
+references Sales_orders(Sales_ord_id);
+alter table Sales_return
+add  foreign key(Sales_rep_id)
+references employees(employee_id);
+alter table sales_return_items
+add  foreign key(sales_return_id)
+references Sales_return(sales_return_id);
+alter table sales_return_items
+add  foreign key(product_id)
+references products(product_id);
+alter table others_income
+add  foreign key(account_id)
+references employees(employee_id);
+alter table Cash_receive
+add  foreign key(others_income_id)
+references others_income(others_income_id);
+alter table Cash_receive
+add  foreign key(Customer_id)
+references Customers(Customer_id);
+alter table Cash_receive
+add  foreign key(Sales_ord_id)
+references Sales_orders(Sales_ord_id);
+alter table Cash_receive
+add  foreign key(Acc_mgr_id)
+references employees(employee_id);
+
+ALTER TABLE employees
+add constraint emp_min_sal check(salary>0);
+ALTER TABLE employees
+add constraint emp_email_uk unique(emp_email);
+ALTER TABLE employees
+add constraint emp_phone_uk unique(emp_phone);
+ALTER TABLE Customers
+add constraint cust_phone_uk unique(Cust_phone);
+ALTER TABLE Customers
+add constraint cust_email_uk unique(Cust_email);
+
+
+create sequence supplier_payments_seq 
+ start with 9000
+ increment by 10
+ nocache
+ nocycle;
+
+create sequence suppliers_seq 
+ start with 5000
+ increment by 10
+ nocache
+ nocycle;
+
+create sequence purchage_order_seq 
+ start with 4000
+ increment by 5
+ nocache
+ nocycle;
+
+create sequence prod_receive_seq 
+ start with 4500
+ increment by 1
+ nocache
+ nocycle;
+
+create sequence prod_damage_seq 
+ start with 3000
+ increment by 5
+ nocache
+ nocycle;
+
+create sequence products_seq 
+ start with 1000
+ increment by 5
+ nocache
+ nocycle;
+
+create sequence employees_seq 
+ start with 100
+ increment by 5
+ nocache
+ nocycle;
+
+
+create sequence Shipping_seq 
+ start with 1400
+ increment by 1
+ nocache
+ nocycle;
+
+create sequence Sales_orders_seq 
+ start with 20000
+ increment by 1
+ nocache
+ nocycle;
+
+create sequence Prod_delivery_seq 
+ start with 30000
+ increment by 1
+ nocache
+ nocycle;
+
+
+CREATE OR REPLACE TRIGGER UPD_ITEM_STOCK
+AFTER INSERT OR UPDATE OR DELETE ON prod_receive_items
+FOR EACH ROW
+DECLARE
+V_PRODUCT_ID prod_receive_items.PRODUCT_ID%TYPE;
+BEGIN
+select count(*) into V_PRODUCT_ID from stocks
+where PRODUCT_ID=:NEW.PRODUCT_ID;
+IF V_PRODUCT_ID = 0 THEN
+INSERT INTO STOCKS(PRODUCT_ID,QUANTITY)
+VALUES(:NEW.PRODUCT_ID,:NEW.PROD_QTY);
+ELSIF V_PRODUCT_ID IS NOT NULL THEN
+UPDATE STOCKS
+SET QUANTITY=NVL(QUANTITY,0)+:NEW.PROD_QTY
+WHERE PRODUCT_ID=:NEW.PRODUCT_ID;
+END IF;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+NULL;
+END;
+/
+
+create or replace trigger sales_return_update
+after insert or update on SALES_RETURN_ITEMS
+for each row
+begin
+update stocks
+set quantity=nvl(quantity,0)+:new.prod_qty
+where product_id=:new.product_id;
+end;
+/
+
+create or replace trigger shipping_return
+after insert or update on SHIPPING_RETURN_DETAILS
+for each row
+begin
+update stocks
+set quantity=nvl(quantity,0)+:new.SHIPP_RETURN_QTY
+where product_id=:new.product_id;
+end;
+/
+
+create or replace trigger stock_shipping
+after insert or update on SHIPPING_DETAILS
+for each row
+begin
+update stocks
+set quantity=nvl(quantity,0)-:new.quantity
+where product_id=:new.product_id;
+end;
+/
+
+create or replace trigger pur_return_update
+after insert or update on PURCHAGE_RETURN_ITEMS
+for each row
+begin
+update stocks
+set quantity=nvl(quantity,0)-:new.prod_qty
+where product_id=:new.product_id;
+end;
+/
+
+CREATE OR REPLACE TRIGGER UPD_DAMAGE_ITEMS
+AFTER INSERT OR UPDATE OR DELETE ON PROD_DAMAGE_ITEMS
+FOR EACH ROW
+DECLARE
+V_PRODUCT_ID PROD_DAMAGE_ITEMS.PRODUCT_ID%TYPE;
+BEGIN
+select count(*) into V_PRODUCT_ID from stocks
+where PRODUCT_ID=:NEW.PRODUCT_ID;
+IF V_PRODUCT_ID IS NOT NULL THEN
+UPDATE STOCKS
+SET QUANTITY=NVL(QUANTITY,0)-:NEW.PROD_QTY
+WHERE PRODUCT_ID=:NEW.PRODUCT_ID;
+END IF;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+NULL;
+COMMIT;
+END;
+/
+
+
+create or replace trigger product_name_update
+after insert or update on products
+for each row
+begin
+update stocks
+set PRODUCT_NAME=:new.PRODUCT_NAME
+where product_id=:new.product_id;
+end;
+/
+
+create or replace trigger insert_shipp_line
+     before insert on SHIPPING_DETAILS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(SHIPP_ITEM_LINE_NO),0)+1) into new_line
+       from SHIPPING_DETAILS
+       WHERE SHIPP_ID= :new.SHIPP_ID;
+     :new.SHIPP_ITEM_LINE_NO := new_line;
+   end;
+/
+
+create or replace trigger insert_sales_line
+     before insert on SALES_ORDER_ITEMS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(SALES_ORDER_LINE_NO),0)+1) into new_line
+       from SALES_ORDER_ITEMS
+       WHERE SALES_ORD_ID= :new.SALES_ORD_ID;
+     :new.SALES_ORDER_LINE_NO := new_line;
+   end;
+/
+
+
+create or replace trigger insert_purchase_line
+     before insert on PURCHAGE_ITEMS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(ITEM_LINE_NO),0)+1) into new_line
+       from PURCHAGE_ITEMS
+       WHERE PUR_ORD_ID= :new.PUR_ORD_ID;
+     :new.ITEM_LINE_NO := new_line;
+   end;
+/
+
+create or replace trigger insert_prod_rece_line
+     before insert on PROD_RECEIVE_ITEMS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(RECEIVE_LINE_NO),0)+1) into new_line
+       from PROD_RECEIVE_ITEMS
+       WHERE PROD_RECEIVE_ID= :new.PROD_RECEIVE_ID;
+     :new.RECEIVE_LINE_NO:= new_line;
+   end;
+/
+
+create or replace trigger insert_prod_retu_line
+     before insert on PURCHAGE_RETURN_ITEMS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(PUR_RETURN_LINE_NO),0)+1) into new_line
+       from PURCHAGE_RETURN_ITEMS
+       WHERE PUR_RETURN_ID= :new.PUR_RETURN_ID;
+     :new.PUR_RETURN_LINE_NO:= new_line;
+   end;
+/
+
+create or replace trigger INSERT_PROD_DELIVERY_LINE
+     before insert on PROD_DELIVERY_ITEMS
+     for each row
+     declare
+       new_line number;
+   begin
+       select (nvl(max(PROD_DELIVERY_LINE_NO),0)+1) into new_line
+       from PROD_DELIVERY_ITEMS
+       WHERE PROD_DELIVERY_ID= :new.PROD_DELIVERY_ID;
+     :new.PROD_DELIVERY_LINE_NO:= new_line;
+   end;
+/
+
+
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Zasim',sysdate,'ADMIN',24000,null,01714724645,'zasimshsh@','Dhaka',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Adnan',sysdate,'AD_VP',20000,null,01988196783,'adnan@','Dhaka',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Asif',sysdate,'AD_VP',20000,null,01673146714,'asif@','Dhaka',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Akram',sysdate,'ACC_MGR',15000,null,01765797858,'Akram@','Chittagong',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Jafor',sysdate,'STOCK_MGR',13000,null,01830340602,'Jafor@','Dhaka',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Alamgir',sysdate,'IT_PROG',15000,null,01720810475,'Alamgir@','Pabna',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Nazim',sysdate,'SA_REP',13000,null,01633153662,'Nazim@','Dhaka',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Asraf',sysdate,'SA_REP',12000,null,01764805692,'Asraf@','Dinajpur',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Jahir',sysdate,'SA_REP',11000,null,01670299432,'Jahir@','Commilla',null);
+INSERT INTO employees(EMPLOYEE_ID,EMP_NAME,HIRE_DATE,JOB_ID,SALARY,COMMISSION,EMP_PHONE,EMP_EMAIL,EMP_ADRESS,MANAGER_ID)
+VALUES(employees_seq.nextval,'Riad',sysdate,'SA_REP',9000,null,01515671970,'Riad@','Narayangonj',null);
+
+
+INSERT INTO SUPPLIERS(SUPPLIER_ID,SUPPLIER_NAME,SUPPLIER_PHONE,SUPPLIER_EMAIL,SUPP_ADDRESS)
+VALUES(suppliers_seq.nextval,'Leens Tech',01717776666,'leenstech','Dhaka');
+INSERT INTO SUPPLIERS(SUPPLIER_ID,SUPPLIER_NAME,SUPPLIER_PHONE,SUPPLIER_EMAIL,SUPP_ADDRESS)
+VALUES(suppliers_seq.nextval,'Ryans',01718886777,'ryanstech','Dhaka');
+INSERT INTO SUPPLIERS(SUPPLIER_ID,SUPPLIER_NAME,SUPPLIER_PHONE,SUPPLIER_EMAIL,SUPP_ADDRESS)
+VALUES(suppliers_seq.nextval,'Sky Tech',01717776999,'skytech','Dhaka');
+
+
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'LCD Monitor',null,'17/MM',9000,10000,12000,5000);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Monitor',null,' 17/HR',8000,9000,12000,5000);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'CPU',null,' D300',12000,10000,13000,5000);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Plasma Monitor',null,' 10M',1500,10000,16000,5010);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Compact 400/DQ',null,'500MM',500,700,900,5010);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Laptop 48',null,'ACER',5000,6000,8000,5010);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Mouse WP',null,'5M',500,600,1000,5020);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Router ASR',null,'DELL',11000,10000,12000,5020);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Laptop 128',null,'HP',1700,10000,20000,5020);
+INSERT INTO products (PRODUCT_ID,PRODUCT_NAME,PRODUCT_CATAGORY,PRODUCT_DESCRIPTION,PURCHAGE_PRICE,PROD_MIN_PRICE,PROD_MAX_PRICE,SUPPLIER_ID)
+VALUES(products_seq.nextval,'Laptop 16',null,'DELL',1700,10000,20000,5020);
+
+
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Dhaka');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Dhanmondi');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Mirpur');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Savar');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Gazipur');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Uttara');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Kawranbazar');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Farmgate');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Gulshan');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Banani');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'New Market');
+INSERT INTO SHIPPING_LINES (SHIPP_LINE_ID,SHIPP_LINE_NAME,SHIPP_LINE_AREA)
+VALUES(Shipping_seq.nextval,null,'Azimpur');
+
+
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Imran',01767506335,'Imran@',1401);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Sakil',01821831196,'Sakil@',1402);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Sumon',01723790526,'sumon@',1403);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Mamun',01738440602,'mamun@',1404);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Khorsed',01761257506,'khorsed@',1405);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Arif',01783554869,'arif@',1406);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Faruk',01725986345,'faruk@',1407);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Habib',01685356984,'habib@',1408);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Asik',01335864825,'asik@',1409);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Moin',01536857984,'Moin@',1410);
+INSERT INTO CUSTOMERS (CUSTOMER_ID,CUST_NAME,CUST_PHONE,CUST_EMAIL,SHIPP_LINE_ID)
+VALUES(Customers_seq.nextval,'Rubel',01523569524,'rubel@',1411);
+
+
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10000,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10005,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10010,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10015,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10020,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10025,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10030,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10035,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10040,130);
+INSERT INTO SALES_ORDERS(SALES_ORD_ID,SALES_ORD_DATE,CUSTOMER_ID,SALES_REP_ID)
+VALUES(Sales_orders_seq.nextval,sysdate,10045,130);
+
+
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20000,1000,559,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20001,1005,550,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20002,1010,551,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20003,1015,552,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20004,1020,553,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20005,1025,554,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20006,1030,555,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20007,1035,556,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20008,1040,557,1);
+INSERT INTO SALES_ORDER_ITEMS(SALES_ORD_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(20009,1045,558,1);
+
+
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5000,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5000,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5000,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5010,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5010,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5010,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5000,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5000,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5020,115,null);
+INSERT INTO PURCHAGE_ORDER(PUR_ORD_ID,PUR_ORDER_DATE,SUPPLIER_ID,PURCHAGE_MGR_ID,ORDER_TOTAL)
+VALUES(purchage_order_seq.NEXTVAL,SYSDATE,5020,115,null);
+
+
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4000,null,1000,750,5);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4005,null,1005,1250,6);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4010,null,1010,1750,5);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4015,null,1015,250,8);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4020,null,1020,750,3);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4025,null,1025,700,4);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4030,null,1030,800,2);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4035,null,1035,950,8);
+INSERT INTO PURCHAGE_ITEMS(PUR_ORD_ID,ITEM_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4040,null,1040,1150,10);
+
+
+INSERT INTO PURCHAGE_RETURN(PUR_RETURN_ID,PUR_RETURN_DATE,PUR_ORD_ID,SUPPLIER_ID,STOCK_MGR_ID)
+VALUES(4646,sysdate,4000,5010,115);
+INSERT INTO PURCHAGE_RETURN(PUR_RETURN_ID,PUR_RETURN_DATE,PUR_ORD_ID,SUPPLIER_ID,STOCK_MGR_ID)
+VALUES(4647,sysdate,4005,5020,115);
+INSERT INTO PURCHAGE_RETURN(PUR_RETURN_ID,PUR_RETURN_DATE,PUR_ORD_ID,SUPPLIER_ID,STOCK_MGR_ID)
+VALUES(4648,sysdate,4010,5000,115);
+
+
+INSERT INTO PURCHAGE_RETURN_ITEMS(PUR_RETURN_ID,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4646,1005,550,1);
+INSERT INTO PURCHAGE_RETURN_ITEMS(PUR_RETURN_ID,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4647,1010,1200,50);
+INSERT INTO PURCHAGE_RETURN_ITEMS(PUR_RETURN_ID,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4648,1015,2500,15);
+
+
+INSERT INTO PROD_DAMAGE(PROD_DAMAGE_ID,PROD_DAMAGE_DATE,STOCK_MGR_ID,DAMAGE_TOTAL)
+VALUES(prod_damage_seq.nextval,sysdate,120,500);
+INSERT INTO PROD_DAMAGE(PROD_DAMAGE_ID,PROD_DAMAGE_DATE,STOCK_MGR_ID,DAMAGE_TOTAL)
+VALUES(prod_damage_seq.nextval,sysdate,120,1200);
+
+
+INSERT INTO PROD_DAMAGE_ITEMS(PROD_DAMAGE_ID,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(3000,1005,550,1);
+INSERT INTO PROD_DAMAGE_ITEMS(PROD_DAMAGE_ID,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(3005,1010,1100,50);
+
+
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5000,4000,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5000,4005,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5000,4010,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5000,4015,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5010,4020,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5010,4025,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5020,4030,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5020,4035,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5020,4040,120);
+INSERT INTO PROD_RECEIVE (PROD_RECEIVE_ID,PROD_RECEIVE_DATE,SUPPLIER_ID,PUR_ORD_ID,STOCK_MGR_ID)
+VALUES(prod_receive_seq.nextval,sysdate,5020,4045,120);
+
+
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4500,null,1005,9000,12);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4501,null,1010,12000,13);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4502,null,1015,13000,5);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4503,null,1020,16000,7);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4504,null,1025,900,8);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4505,null,1030,8000,6);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4506,null,1035,1000,2);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4507,null,1040,12000,8);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4508,null,1045,20000,4);
+INSERT INTO PROD_RECEIVE_ITEMS (PROD_RECEIVE_ID,RECEIVE_LINE_NO,PRODUCT_ID,PUR_PRICE,PROD_QTY)
+VALUES(4509,null,1000,20000,2);
+
+
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(1,sysdate,1401,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(2,sysdate,1402,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(3,sysdate,1403,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(4,sysdate,1404,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(5,sysdate,1405,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(6,sysdate,1406,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(7,sysdate,1407,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(8,sysdate,1408,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(9,sysdate,1409,120);
+INSERT INTO shipping (SHIPP_ID,SHIPP_DATE,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(10,sysdate,1410,120);
+
+
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(1,1000,1400,2);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(2,1005,1500,1);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(3,1010,1450,3);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(4,1015,1600,1);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(5,1020,1404,5);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(6,1025,1800,6);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(7,1030,2200,7);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(8,1035,1400,2);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(9,1040,1900,1);
+INSERT INTO shipping_details (SHIPP_ID,PRODUCT_ID,PROD_PRICE,quantity)
+VALUES(10,1045,1500,2);
+
+
+INSERT INTO SHIPPING_RETURN (SHIPP_RETURN_ID,SHIPP_DATE,SHIPP_ID,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(51,sysdate,1,1400,120);
+INSERT INTO SHIPPING_RETURN (SHIPP_RETURN_ID,SHIPP_DATE,SHIPP_ID,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(52,sysdate,2,1401,120);
+INSERT INTO SHIPPING_RETURN (SHIPP_RETURN_ID,SHIPP_DATE,SHIPP_ID,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(53,sysdate,3,1402,120);
+INSERT INTO SHIPPING_RETURN (SHIPP_RETURN_ID,SHIPP_DATE,SHIPP_ID,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(54,sysdate,4,1403,120);
+INSERT INTO SHIPPING_RETURN (SHIPP_RETURN_ID,SHIPP_DATE,SHIPP_ID,SHIPP_LINE_ID,STOCK_MGR_ID)
+VALUES(55,sysdate,5,1404,120);
+
+
+INSERT INTO SHIPPING_RETURN_DETAILS (SHIPP_RETURN_ID,PRODUCT_ID,PROD_PRICE,SHIPP_RETURN_QTY)
+VALUES(51,1000,1400,2);
+INSERT INTO SHIPPING_RETURN_DETAILS (SHIPP_RETURN_ID,PRODUCT_ID,PROD_PRICE,SHIPP_RETURN_QTY)
+VALUES(52,1005,1500,1);
+INSERT INTO SHIPPING_RETURN_DETAILS (SHIPP_RETURN_ID,PRODUCT_ID,PROD_PRICE,SHIPP_RETURN_QTY)
+VALUES(53,1005,1450,3);
+INSERT INTO SHIPPING_RETURN_DETAILS (SHIPP_RETURN_ID,PRODUCT_ID,PROD_PRICE,SHIPP_RETURN_QTY)
+VALUES(54,1010,1600,1);
+INSERT INTO SHIPPING_RETURN_DETAILS (SHIPP_RETURN_ID,PRODUCT_ID,PROD_PRICE,SHIPP_RETURN_QTY)
+VALUES(55,1015,1404,1);
+
+
+INSERT INTO SALES_RETURN(SALES_RETURN_ID,SALES_RETURN_DATE,CUSTOMER_ID,SALES_ORD_ID,SALES_REP_ID)
+VALUES(5551,sysdate,10000,20002,130);
+INSERT INTO SALES_RETURN(SALES_RETURN_ID,SALES_RETURN_DATE,CUSTOMER_ID,SALES_ORD_ID,SALES_REP_ID)
+VALUES(5552,sysdate,10005,20003,130);
+INSERT INTO SALES_RETURN(SALES_RETURN_ID,SALES_RETURN_DATE,CUSTOMER_ID,SALES_ORD_ID,SALES_REP_ID)
+VALUES(5553,sysdate,10010,20004,130);
+INSERT INTO SALES_RETURN(SALES_RETURN_ID,SALES_RETURN_DATE,CUSTOMER_ID,SALES_ORD_ID,SALES_REP_ID)
+VALUES(5554,sysdate,10015,20005,130);
+INSERT INTO SALES_RETURN(SALES_RETURN_ID,SALES_RETURN_DATE,CUSTOMER_ID,SALES_ORD_ID,SALES_REP_ID)
+VALUES(5555,sysdate,10020,20006,130);
+
+
+INSERT INTO SALES_RETURN_ITEMS(SALES_RETURN_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(5551,1000,559,1);
+INSERT INTO SALES_RETURN_ITEMS(SALES_RETURN_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(5552,1005,550,1);
+INSERT INTO SALES_RETURN_ITEMS(SALES_RETURN_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(5553,1010,551,1);
+INSERT INTO SALES_RETURN_ITEMS(SALES_RETURN_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(5554,1015,552,1);
+INSERT INTO SALES_RETURN_ITEMS(SALES_RETURN_ID,PRODUCT_ID,PROD_PRICE,PROD_QTY)
+VALUES(5555,1020,553,1);
+
+
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10000,20000,1);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10005,20001,2);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10010,20002,3);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10015,20003,4);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10020,20004,5);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10025,20005,6);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10030,20006,7);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10035,20007,8);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10040,20008,9);
+INSERT INTO PROD_DELIVERY (PROD_DELIVERY_ID,PROD_DELIVERY_DATE,CUSTOMER_ID,SALES_ORD_ID,SHIPP_ID)
+VALUES(Prod_delivery_seq.nextval,sysdate,10045,20009,10);
+
+
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30000,1000,559,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30001,1005,550,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30002,1010,551,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30003,1015,552,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30004,1020,553,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30005,1025,554,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30006,1030,555,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30007,1035,556,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30008,1040,557,1);
+INSERT INTO PROD_DELIVERY_ITEMS (PROD_DELIVERY_ID,PRODUCT_ID,PRODUCT_PRICE,PROD_QTY)
+VALUES(30009,1045,558,1);
+
+
+
+INSERT INTO BANK_ACCOUNTS(BANK_ACC_NO,BANK_ACC_NAME,BANK_BRANCH)
+VALUES(787878,'Janata Bank','Dhaka');
+
+INSERT INTO BANK_TRANSECTION(TRANSECTION_ID,TRANS_TYPE,BANK_ACC_NO,TRANS_AMOUNT,ACCOUNT_ID)
+VALUES(6667,null,787878,25000,115);
+INSERT INTO BANK_TRANSECTION(TRANSECTION_ID,TRANS_TYPE,BANK_ACC_NO,TRANS_AMOUNT,ACCOUNT_ID)
+VALUES(6668,null,787878,22000,115);
+
+
+INSERT INTO SUPP_BANK_INFO(SUPP_BANK_ACC_NO,SUPP_BANK_ACC_NAME,BANK_NAME,BANK_BRANCH,SUPPLIER_ID)
+VALUES(9001,'JBLSAVING2020','Janata Bank','Dhaka',5000);
+
+
+INSERT INTO SUPPLIER_PAYMENTS(SUPPLIER_PMT_ID,SUPPLIER_PMT_DATE,SUPPLIER_ID,PUR_ORD_ID,ACC_MGR_ID,BANK_ACC_NO,SUPP_BANK_ACC_NO,PMT_AMOUNT)
+VALUES(8885,sysdate,5000,4000,115,787878,9001,35000);
+
+
+INSERT INTO EXPENSE(EXPENSE_ID,VOUCHER_NO,EXPENSE_DATE,ACCOUNT_ID,EXPENSE_TOTAL)
+VALUES(6001,NULL,SYSDATE,115,750);
+INSERT INTO EXPENSE(EXPENSE_ID,VOUCHER_NO,EXPENSE_DATE,ACCOUNT_ID,EXPENSE_TOTAL)
+VALUES(6002,NULL,SYSDATE,115,1250);
+
+
+INSERT INTO EXPENSE_DETAILS(EXPENSE_ID,DESCRIPTION,EXPENSE_AMOUNT)
+VALUES(6001,'Carrying',750);
+INSERT INTO EXPENSE_DETAILS(EXPENSE_ID,DESCRIPTION,EXPENSE_AMOUNT)
+VALUES(6002,'Cost',1250);
+end;
+/
+
+INSERT INTO DELIVERY_EXECUTIVE(DELIVERY_EXTV_ID,NAME)
+VALUES(135,'Masud Rana');
+
+
+INSERT INTO PAYMENTS(EXPENSE_ID,PAYMENT_DATE,PAY_AMOUNT,ACCOUNT_ID)
+VALUES(6001,SYSDATE,22000,115);
+INSERT INTO PAYMENTS(EXPENSE_ID,PAYMENT_DATE,PAY_AMOUNT,ACCOUNT_ID)
+VALUES(6002,SYSDATE,2000,115);
+
+
+INSERT INTO OTHERS_INCOME(OTHERS_INCOME_ID,INCOME_DATE,DESCRIPTION,AMOUNT,ACCOUNT_ID)
+VALUES(4545,SYSDATE,'Extra income',2000,115);
+INSERT INTO OTHERS_INCOME(OTHERS_INCOME_ID,INCOME_DATE,DESCRIPTION,AMOUNT,ACCOUNT_ID)
+VALUES(4546,SYSDATE,'Extra income',15000,115);
+
+
+INSERT INTO CASH_RECEIVE(CASH_ID,CASH_DATE,CASH_PURPOSE,OTHERS_INCOME_ID,CUSTOMER_ID,SALES_ORD_ID,CASH_AMOUNT,ACC_MGR_ID)
+VALUES(9988,SYSDATE,'Sales',4545,10000,20002,22000,115);
+INSERT INTO CASH_RECEIVE(CASH_ID,CASH_DATE,CASH_PURPOSE,OTHERS_INCOME_ID,CUSTOMER_ID,SALES_ORD_ID,CASH_AMOUNT,ACC_MGR_ID)
+VALUES(9989,SYSDATE,'Sales',4546,10005,20003,25000,115);
+
+INSERT INTO USERS
+VALUES('zasim',123,'ADMIN');
+INSERT INTO USERS
+VALUES('jafor',123,'SALES');
+INSERT INTO USERS
+VALUES('asraf',123,'PURCHASE');
+
+
+create or replace view sales_representative
+as
+SELECT EMPLOYEE_ID ID,EMP_NAME NAME,EMP_PHONE PHONE_NO,SALARY SALARY
+FROM EMPLOYEES
+WHERE JOB_ID='SA_REP';
+
+commit;
